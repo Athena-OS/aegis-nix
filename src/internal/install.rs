@@ -32,14 +32,14 @@ pub fn install() {
             let exit_code = exit_status.code().unwrap_or(-1);
             if exit_code == 0 {
                 warn!(
-                    "WARN (exit code {}): {}",
+                    "(exit code {}): {}",
                     exit_code,
                     line
                 );
             }
             else {
                 error!(
-                    "ERROR (exit code {}): {}",
+                    "(exit code {}): {}",
                     exit_code,
                     line
                 );
