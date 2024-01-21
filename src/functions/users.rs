@@ -21,7 +21,7 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
 
 pub fn hash_pass(password: &str) -> std::process::Output {
     let output = Command::new("openssl")
-        .args(["passwd", "-1", password])
+        .args(["passwd", "-6", password])
         .output()
         .expect("Failed to hash password");
     
