@@ -195,7 +195,7 @@ pub fn read_config(configpath: PathBuf) {
         users::new_user(
             config.users[i].name.as_str(),
             config.users[i].password.as_str(),
-            true,
+            false,
         );
         println!("---------");
     }
@@ -207,6 +207,7 @@ pub fn read_config(configpath: PathBuf) {
     install::install();
     println!();
     log::info!("Installation log file copied to /var/log/aegis.log");
+    files_eval(files::create_directory("/mnt/var/log"), "create /mnt/var/log");
     files::copy_file("/tmp/aegis.log", "/mnt/var/log/aegis.log");
     println!("Installation finished! You may reboot now!")
 }
