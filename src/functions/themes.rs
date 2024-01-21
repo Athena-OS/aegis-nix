@@ -15,7 +15,7 @@ fn install_graphite() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "module-name =.*",
-            "module-name = \"graphite\"",
+            "module-name = \"graphite\";",
         ),
         "Set Graphite Module",
     );
@@ -23,7 +23,7 @@ fn install_graphite() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "gtk-theme =.*",
-            "gtk-theme = \"Graphite-Dark\"",
+            "gtk-theme = \"Graphite-Dark\";",
         ),
         "Set Graphite GTK",
     );
@@ -31,7 +31,7 @@ fn install_graphite() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "icon-theme =.*",
-            "icon-theme = \"Tela-circle-black-dark\"",
+            "icon-theme = \"Tela-circle-black-dark\";",
         ),
         "Set Graphite Icon Theme",
     );
@@ -39,7 +39,7 @@ fn install_graphite() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "cursor-theme =.*",
-            "cursor-theme = \"Bibata-Modern-Ice\"",
+            "cursor-theme = \"Bibata-Modern-Ice\";",
         ),
         "Set Graphite Cursor Theme",
     );
@@ -50,7 +50,7 @@ fn install_sweet() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "module-name =.*",
-            "module-name = \"sweet\"",
+            "module-name = \"sweet\";",
         ),
         "Set Sweet Module",
     );
@@ -58,7 +58,7 @@ fn install_sweet() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "gtk-theme =.*",
-            "gtk-theme = \"Sweet-Dark-v40\"",
+            "gtk-theme = \"Sweet-Dark-v40\";",
         ),
         "Set Sweet GTK",
     );
@@ -66,7 +66,7 @@ fn install_sweet() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "icon-theme =.*",
-            "icon-theme = \"Tela-circle-black-dark\"",
+            "icon-theme = \"Tela-circle-black-dark\";",
         ),
         "Set Sweet Icon Theme",
     );
@@ -74,7 +74,7 @@ fn install_sweet() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "cursor-theme =.*",
-            "cursor-theme = \"Bibata-Modern-Ice\"",
+            "cursor-theme = \"Bibata-Modern-Ice\";",
         ),
         "Set Sweet Cursor Theme",
     );

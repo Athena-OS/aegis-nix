@@ -8,7 +8,7 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "username =.*",
-            &(format!("username = \"{}\"", username)),
+            &(format!("username = \"{}\";", username)),
         ),
         "Set username",
     );
@@ -23,7 +23,7 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "hashed =.*",
-            &(format!("hashed = \"{}\"", _password)),
+            &(format!("hashed = \"{}\";", _password)),
         ),
         "Set password hash",
     );
@@ -43,7 +43,7 @@ pub fn root_pass(root_pass: &str) {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "hashedRoot =.*",
-            &(format!("hashedRoot = \"{}\"", root_pass)),
+            &(format!("hashedRoot = \"{}\";", root_pass)),
         ),
         "Set root password hash",
     );

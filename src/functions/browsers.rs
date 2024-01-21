@@ -14,7 +14,7 @@ fn install_firefox() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "browser =.*",
-            "browser = \"firefox\"",
+            "browser = \"firefox\";",
         ),
         "Set Firefox",
     );

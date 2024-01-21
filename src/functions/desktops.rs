@@ -16,7 +16,7 @@ fn install_xfce_refined() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "desktop =.*",
-            "desktop = \"xfce\"",
+            "desktop = \"xfce\";",
         ),
         "Set XFCE",
     );
@@ -35,7 +35,7 @@ fn install_xfce_picom() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "desktop =.*",
-            "desktop = \"xfce\"",
+            "desktop = \"xfce\";",
         ),
         "Set XFCE",
     );
@@ -54,7 +54,7 @@ fn install_gnome() {
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
             "desktop =.*",
-            "desktop = \"gnome\"",
+            "desktop = \"gnome\";",
         ),
         "Set GNOME",
     );
