@@ -26,11 +26,6 @@ fn main() {
         Command::InstallBase => {
             base::install_nix_config();
         }
-        Command::Locale(args) => {
-            locale::set_locale(args.locales.join(" ")); // locale.gen file comes grom glibc package that is in base group package
-            locale::set_keyboard(&args.keyboard);
-            locale::set_timezone(&args.timezone);
-        }
         Command::Bootloader { subcommand } => match subcommand {
             BootloaderSubcommand::GrubEfi { } => {
                 base::install_bootloader_efi();
@@ -38,6 +33,11 @@ fn main() {
             BootloaderSubcommand::GrubLegacy { device } => {
                 base::install_bootloader_legacy(device);
             }
+        }
+        Command::Locale(args) => {
+            locale::set_locale(args.locales.join(" ")); // locale.gen file comes grom glibc package that is in base group package
+            locale::set_keyboard(&args.keyboard);
+            locale::set_timezone(&args.timezone);
         }
         Command::Networking(args) => {
             network::set_hostname(&args.hostname);

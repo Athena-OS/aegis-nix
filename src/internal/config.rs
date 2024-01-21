@@ -105,6 +105,8 @@ pub fn read_config(configpath: PathBuf) {
         &mut partitions,
     );
     println!();
+    base::install_nix_config();
+    println!();
     log::info!("Installing bootloader : {}", config.bootloader.r#type);
     log::info!("Installing bootloader to : {}", config.bootloader.location);
     if config.bootloader.r#type == "grub-efi" {
@@ -112,8 +114,6 @@ pub fn read_config(configpath: PathBuf) {
     } else if config.bootloader.r#type == "grub-legacy" {
         base::install_bootloader_legacy(PathBuf::from(config.bootloader.location));
     }
-    println!();
-    base::install_nix_config();
     println!();
     // Set locales at the beginning to prevent some warning messages about "Setting locale failed"
     log::info!("Adding Locales : {:?}", config.locale.locale);
