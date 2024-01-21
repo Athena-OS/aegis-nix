@@ -44,7 +44,12 @@ pub fn install_nix_config() {
             "cp",
             vec![
                 String::from("-rf"),
-                String::from("/tmp/athena-nix-main/nixos/{home-manager,hosts,modules,pkgs,users,configuration.nix}"),
+                String::from("/tmp/athena-nix-main/nixos/home-manager"),
+                String::from("/tmp/athena-nix-main/nixos/hosts"),
+                String::from("/tmp/athena-nix-main/nixos/modules"),
+                String::from("/tmp/athena-nix-main/nixos/pkgs"),
+                String::from("/tmp/athena-nix-main/nixos/users"),
+                String::from("/tmp/athena-nix-main/nixos/configuration.nix"),
                 String::from("/mnt/etc/nixos/"),
             ],
         ),
