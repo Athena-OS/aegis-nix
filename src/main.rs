@@ -13,6 +13,7 @@ fn main() {
     println!("verbose: {}", cli.verbose);
     let log_file_path = "/tmp/aegis";
     logging::init(cli.verbose, log_file_path);
+    // menu choice
     match cli.command {
         Command::Partition(args) => {
             let mut partitions = args.partitions;
@@ -47,7 +48,7 @@ fn main() {
                 users::new_user(
                     &args.username,
                     &args.password,
-                    true,
+                    false,
                 );
             }
             UsersSubcommand::RootPass { password } => {
