@@ -50,10 +50,19 @@ pub fn install_nix_config() {
                 String::from("/tmp/athena-nix-main/nixos/pkgs"),
                 String::from("/tmp/athena-nix-main/nixos/users"),
                 String::from("/tmp/athena-nix-main/nixos/configuration.nix"),
+                String::from("/tmp/athena-nix-main/nixos/default.nix"),
                 String::from("/mnt/etc/nixos/"),
             ],
         ),
         "Move Athena OS configuration to /mnt/etc/nixos/.",
+    );
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "/etc/nixos/hardware-configuration.nix",
+            "./hardware-configuration.nix",
+        ),
+        "Set hardware-configuration path",
     );
 }
 
@@ -65,7 +74,7 @@ pub fn install_bootloader_efi() {
             "systemd",
             "systemd",
         ),
-        "Setting EFI bootloader",
+        "Set EFI bootloader",
     );
 }
 
@@ -81,7 +90,7 @@ pub fn install_bootloader_legacy(device: PathBuf) {
             "/dev/sda",
             &device,
         ),
-        "Setting Legacy bootloader",
+        "Set Legacy bootloader device",
     );
     files_eval(
         files::sed_file(
@@ -89,6 +98,6 @@ pub fn install_bootloader_legacy(device: PathBuf) {
             "systemd",
             "grub",
         ),
-        "Setting Legacy bootloader",
+        "Set Legacy bootloader",
     );
 }
