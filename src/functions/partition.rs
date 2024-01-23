@@ -357,7 +357,7 @@ fn part_nvme(device: &Path, efi: bool, swap: bool) {
             "/mnt/home",
             "subvol=@home",
         );
-        mount(format!("{}p1", device).as_str(), "/mnt/boot/efi", "");
+        mount(format!("{}p1", device).as_str(), "/mnt/boot", "");
         if swap {
             exec_eval(
                 exec(
