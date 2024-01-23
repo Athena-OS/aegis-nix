@@ -6,7 +6,7 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
     let config_path = "/mnt/etc/nixos/configuration.nix";
     
     let user_line = format!("username = \"{}\";", username);
-    match replace_line_in_file(config_path, "username =", &user_line) {
+    match files::replace_line_in_file(config_path, "username =", &user_line) {
         Ok(_) => {
             log::info!("Set username");
         }
@@ -24,7 +24,7 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
     }
     
     let hash_line = format!("hashed = \"{}\";", _password);
-    match replace_line_in_file(config_path, "hashed =", &hash_line) {
+    match files::replace_line_in_file(config_path, "hashed =", &hash_line) {
         Ok(_) => {
             log::info!("Set user password hash");
         }
@@ -47,7 +47,7 @@ pub fn root_pass(root_pass: &str) {
     let config_path = "/mnt/etc/nixos/configuration.nix";
     
     let hash_line = format!("hashedRoot = \"{}\";", root_pass);
-    match replace_line_in_file(config_path, "hashedRoot =", &hash_line) {
+    match files::replace_line_in_file(config_path, "hashedRoot =", &hash_line) {
         Ok(_) => {
             log::info!("Set root password hash");
         }
