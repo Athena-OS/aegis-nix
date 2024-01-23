@@ -118,7 +118,7 @@ pub fn read_config(configpath: PathBuf) {
     log::info!("Installing bootloader : {}", config.bootloader.r#type);
     log::info!("Installing bootloader to : {}", config.bootloader.location);
     if config.bootloader.r#type == "grub-efi" {
-        base::install_bootloader_efi();
+        base::install_bootloader_efi(PathBuf::from(config.bootloader.location));
     } else if config.bootloader.r#type == "grub-legacy" {
         base::install_bootloader_legacy(PathBuf::from(config.bootloader.location));
     }
