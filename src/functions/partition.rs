@@ -195,22 +195,24 @@ fn partition_no_efi(device: &Path, swap: bool, swap_size: String) {
         ),
         "set the root partition's boot flag to on",
     );
-    exec_eval(
-        exec(
-            "parted",
-            vec![
-                String::from("-s"),
-                String::from(&device),
-                String::from("--"),
-                String::from("mkpart"),
-                String::from("swap"),
-                String::from("linux-swap"),
-                String::from(&boundary_partition_size),
-                String::from("100%"),
-            ],
-        ),
-        "create swap partition",
-    );
+    if swap {
+        exec_eval(
+            exec(
+                "parted",
+                vec![
+                    String::from("-s"),
+                    String::from(&device),
+                    String::from("--"),
+                    String::from("mkpart"),
+                    String::from("swap"),
+                    String::from("linux-swap"),
+                    String::from(&boundary_partition_size),
+                    String::from("100%"),
+                ],
+            ),
+            "create swap partition",
+        );
+    }
 }
 
 fn partition_with_efi(device: &Path, swap: bool, swap_size: String) {
@@ -280,22 +282,24 @@ fn partition_with_efi(device: &Path, swap: bool, swap_size: String) {
         ),
         "create btrfs root partition",
     );
-    exec_eval(
-        exec(
-            "parted",
-            vec![
-                String::from("-s"),
-                String::from(&device),
-                String::from("--"),
-                String::from("mkpart"),
-                String::from("swap"),
-                String::from("linux-swap"),
-                String::from(&boundary_partition_size),
-                String::from("100%"),
-            ],
-        ),
-        "create swap partition",
-    );
+    if swap {
+        exec_eval(
+            exec(
+                "parted",
+                vec![
+                    String::from("-s"),
+                    String::from(&device),
+                    String::from("--"),
+                    String::from("mkpart"),
+                    String::from("swap"),
+                    String::from("linux-swap"),
+                    String::from(&boundary_partition_size),
+                    String::from("100%"),
+                ],
+            ),
+            "create swap partition",
+        );
+    }
 }
 
 fn part_nvme(device: &Path, efi: bool, swap: bool) {
