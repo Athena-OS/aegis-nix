@@ -40,6 +40,25 @@ pub fn sed_file(path: &str, find: &str, replace: &str) -> io::Result<()> {
     Ok(())
 }
 
+pub fn replace_line_in_file(path: &str, search: &str, replacement: &str) -> io::Result<()> {
+    println!("Replace '{}' with '{}' in file {}", search, replacement, path);
+    let contents = fs::read_to_string(path)?;
+    let mut new_contents = String::new();
+
+    for line in contents.lines() {
+        if line.contains(search) {
+            new_contents.push_str(replacement);
+        } else {
+            new_contents.push_str(line);
+        }
+        new_contents.push('\n');
+    }
+
+    let mut file = OpenOptions::new().write(true).truncate(true).open(path)?;
+    file.write_all(new_contents.as_bytes())?;
+    Ok(())
+}
+
 pub fn create_directory(path: &str) -> std::io::Result<()> { // Create all missing dirs in the specified path
     std::fs::create_dir_all(path)
 }
