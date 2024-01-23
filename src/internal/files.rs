@@ -41,7 +41,7 @@ pub fn sed_file(path: &str, find: &str, replace: &str) -> io::Result<()> {
 }
 
 pub fn replace_line_in_file(path: &str, search: &str, replacement: &str) -> io::Result<()> {
-    println!("Replace '{}' with '{}' in file {}", search, replacement, path);
+    log::info!("Replace '{}' with '{}' in file {}", search, replacement, path);
     let contents = fs::read_to_string(path)?;
     let mut new_contents = String::new();
 
