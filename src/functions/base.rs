@@ -66,7 +66,7 @@ pub fn install_nix_config() {
     );
 }
 
-pub fn install_bootloader_efi() {
+pub fn install_bootloader_efi(efidir: PathBuf) {
     log::info!("Set EFI Bootloader.");
     let efidir = std::path::Path::new("/mnt").join(efidir);
     let efi_str = efidir.to_str().unwrap();

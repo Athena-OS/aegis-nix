@@ -83,6 +83,8 @@ pub fn partition(
     device: PathBuf,
     mode: PartitionMode,
     efi: bool,
+    swap: bool,
+    swap_size: String,
     partitions: &mut Vec<args::Partition>,
 ) {
     println!("{:?}", mode);
@@ -93,16 +95,16 @@ pub fn partition(
             }
             log::debug!("automatically partitioning {device:?}");
             if efi {
-                partition_with_efi(&device);
+                partition_with_efi(&device, swap, swap_size);
             } else {
-                partition_no_efi(&device);
+                partition_no_efi(&device, swap, swap_size);
             }
             if device.to_string_lossy().contains("nvme")
                 || device.to_string_lossy().contains("mmcblk")
             {
-                part_nvme(&device, efi);
+                part_nvme(&device, efi, swap);
             } else {
-                part_disk(&device, efi);
+                part_disk(&device, efi, swap);
             }
         }
         PartitionMode::Manual => {
@@ -124,7 +126,7 @@ pub fn partition(
     }
 }
 
-fn partition_no_efi(device: &Path) {
+fn partition_no_efi(device: &Path, swap: bool, swap_size: String) {
     let device = device.to_string_lossy().to_string();
     exec_eval(
         exec(
@@ -132,18 +134,21 @@ fn partition_no_efi(device: &Path) {
             vec![
                 String::from("-s"),
                 String::from(&device),
+                String::from("--"),
                 String::from("mklabel"),
                 String::from("msdos"),
             ],
         ),
         format!("Create msdos label on {}", device).as_str(),
     );
-    exec_eval(
+    // No need to create ext4 GRUB partition because MBR should automatically create it inside in the boot sector
+    /*exec_eval(
         exec(
             "parted",
             vec![
                 String::from("-s"),
                 String::from(&device),
+                String::from("--"),
                 String::from("mkpart"),
                 String::from("primary"),
                 String::from("ext4"),
@@ -152,25 +157,63 @@ fn partition_no_efi(device: &Path) {
             ],
         ),
         "create bios boot partition",
+    );*/
+    let boundary_partition_size = if swap {
+        format!("-{}", swap_size)
+    } else {
+        String::from("100%")
+    };
+    exec_eval(
+        exec(
+            "parted",
+            vec![
+                String::from("-s"),
+                String::from(&device),
+                String::from("--"),
+                String::from("mkpart"),
+                String::from("primary"),
+                String::from("btrfs"),
+                String::from("1MIB"), // 1MiB instead of 512MiB because we removed the explcit creation of ext4 boot partition for bios-legacy case
+                String::from(&boundary_partition_size),
+            ],
+        ),
+        "create btrfs root partition",
+    );
+    // The following is needed because boot GRUB partition is not created explicitely but automatically created by MBR in the boot sector
+    exec_eval(
+        exec(
+            "parted",
+            vec![
+                String::from("-s"),
+                String::from(&device),
+                String::from("--"),
+                String::from("set"),
+                String::from("1"),
+                String::from("boot"),
+                String::from("on"),
+            ],
+        ),
+        "set the root partition's boot flag to on",
     );
     exec_eval(
         exec(
             "parted",
             vec![
                 String::from("-s"),
-                device,
+                String::from(&device),
+                String::from("--"),
                 String::from("mkpart"),
-                String::from("primary"),
-                String::from("btrfs"),
-                String::from("512MIB"),
+                String::from("swap"),
+                String::from("linux-swap"),
+                String::from(&boundary_partition_size),
                 String::from("100%"),
             ],
         ),
-        "create btrfs root partition",
+        "create swap partition",
     );
 }
 
-fn partition_with_efi(device: &Path) {
+fn partition_with_efi(device: &Path, swap: bool, swap_size: String) {
     let device = device.to_string_lossy().to_string();
     exec_eval(
         exec(
@@ -178,6 +221,7 @@ fn partition_with_efi(device: &Path) {
             vec![
                 String::from("-s"),
                 String::from(&device),
+                String::from("--"),
                 String::from("mklabel"),
                 String::from("gpt"),
             ],
@@ -190,10 +234,12 @@ fn partition_with_efi(device: &Path) {
             vec![
                 String::from("-s"),
                 String::from(&device),
+                String::from("--"),
                 String::from("mkpart"),
+                String::from("ESP"),
                 String::from("fat32"),
-                String::from("0"),
-                String::from("300"),
+                String::from("1MiB"),
+                String::from("512MIB"),
             ],
         ),
         "create EFI partition",
@@ -203,32 +249,69 @@ fn partition_with_efi(device: &Path) {
             "parted",
             vec![
                 String::from("-s"),
-                device,
+                String::from(&device),
+                String::from("--"),
+                String::from("set"),
+                String::from("1"), // It is the number ID of the EFI partition. It is 1 because we create it for first
+                String::from("esp"),
+                String::from("on"),
+            ],
+        ),
+        "create EFI partition",
+    );
+    let boundary_partition_size = if swap {
+        format!("-{}", swap_size)
+    } else {
+        String::from("100%")
+    };
+    exec_eval(
+        exec(
+            "parted",
+            vec![
+                String::from("-s"),
+                String::from(&device),
+                String::from("--"),
                 String::from("mkpart"),
                 String::from("primary"),
                 String::from("btrfs"),
                 String::from("512MIB"),
-                String::from("100%"),
+                String::from(&boundary_partition_size),
             ],
         ),
         "create btrfs root partition",
     );
+    exec_eval(
+        exec(
+            "parted",
+            vec![
+                String::from("-s"),
+                String::from(&device),
+                String::from("--"),
+                String::from("mkpart"),
+                String::from("swap"),
+                String::from("linux-swap"),
+                String::from(&boundary_partition_size),
+                String::from("100%"),
+            ],
+        ),
+        "create swap partition",
+    );
 }
 
-fn part_nvme(device: &Path, efi: bool) {
+fn part_nvme(device: &Path, efi: bool, swap: bool) {
     let device = device.to_string_lossy().to_string();
     if efi {
         exec_eval(
             exec(
-                "mkfs.vfat",
-                vec![String::from("-F32"), format!("{}p1", device)],
+                "mkfs.fat",
+                vec![String::from("-F"), String::from("32"), String::from("-n"), String::from("boot"), format!("{}p1", device)],
             ),
             format!("format {}p1 as fat32", device).as_str(),
         );
         exec_eval(
             exec(
                 "mkfs.btrfs",
-                vec!["-f".to_string(), format!("{}p2", device)],
+                vec!["-L".to_string(), "athenaos".to_string(), "-f".to_string(), format!("{}p2", device)],
             ),
             format!("format {}p2 as btrfs", device).as_str(),
         );
@@ -271,19 +354,36 @@ fn part_nvme(device: &Path, efi: bool) {
             "subvol=@home",
         );
         mount(format!("{}p1", device).as_str(), "/mnt/boot/efi", "");
+        if swap {
+            exec_eval(
+                exec(
+                    "mkswap",
+                    vec!["-L".to_string(), "swap".to_string(), format!("{}p3", device)],
+                ),
+                format!("make {}p3 as swap partition", device).as_str(),
+            );
+            exec_eval(
+                exec(
+                    "swapon",
+                    vec![format!("{}p3", device)],
+                ),
+                format!("activate {}p3 swap device", device).as_str(),
+            );
+        }
     } else if !efi{
-        exec_eval(
+        // No need to create ext4 GRUB partition because MBR should automatically create it inside the boot sector
+        /*exec_eval(
             exec("mkfs.ext4", vec![format!("{}p1", device)]),
             format!("format {}p1 as ext4", device).as_str(),
-        );
+        );*/
         exec_eval(
             exec(
                 "mkfs.btrfs",
-                vec!["-f".to_string(), format!("{}p2", device)],
+                vec!["-L".to_string(), "athenaos".to_string(), "-f".to_string(), format!("{}p1", device)],
             ),
-            format!("format {}p2 as btrfs", device).as_str(),
+            format!("format {}p1 as btrfs", device).as_str(),
         );
-        mount(format!("{}p2", device).as_str(), "/mnt/", "");
+        mount(format!("{}p1", device).as_str(), "/mnt/", "");
         exec_eval(
             exec_workdir(
                 "btrfs",
@@ -309,30 +409,47 @@ fn part_nvme(device: &Path, efi: bool) {
             "Create btrfs subvolume @home",
         );
         umount("/mnt");
-        mount(format!("{}p2", device).as_str(), "/mnt/", "subvol=@");
+        mount(format!("{}p1", device).as_str(), "/mnt/", "subvol=@");
         files_eval(files::create_directory("/mnt/boot"), "create /mnt/boot");
         files_eval(files::create_directory("/mnt/home"), "create /mnt/home");
         mount(
-            format!("{}p2", device).as_str(),
+            format!("{}p1", device).as_str(),
             "/mnt/home",
             "subvol=@home",
         );
-        mount(format!("{}p1", device).as_str(), "/mnt/boot", "");
+        // No need to create ext4 GRUB partition because MBR should automatically create it inside the boot sector
+        //mount(format!("{}p1", device).as_str(), "/mnt/boot", "");
+        if swap {
+            exec_eval(
+                exec(
+                    "mkswap",
+                    vec!["-L".to_string(), "swap".to_string(), format!("{}p2", device)],
+                ),
+                format!("make {}p2 as swap partition", device).as_str(),
+            );
+            exec_eval(
+                exec(
+                    "swapon",
+                    vec![format!("{}p2", device)],
+                ),
+                format!("activate {}p2 swap device", device).as_str(),
+            );
+        }
     }
 }
 
-fn part_disk(device: &Path, efi: bool) {
+fn part_disk(device: &Path, efi: bool, swap: bool) {
     let device = device.to_string_lossy().to_string();
     if efi {
         exec_eval(
             exec(
-                "mkfs.vfat",
-                vec![String::from("-F32"), format!("{}1", device)],
+                "mkfs.fat",
+                vec![String::from("-F"), String::from("32"), String::from("-n"), String::from("boot"), format!("{}1", device)],
             ),
             format!("format {}1 as fat32", device).as_str(),
         );
         exec_eval(
-            exec("mkfs.btrfs", vec!["-f".to_string(), format!("{}2", device)]),
+            exec("mkfs.btrfs", vec!["-L".to_string(), "athenaos".to_string(), "-f".to_string(), format!("{}2", device)]),
             format!("format {}2 as btrfs", device).as_str(),
         );
         mount(format!("{}2", device).as_str(), "/mnt", "");
@@ -370,16 +487,33 @@ fn part_disk(device: &Path, efi: bool) {
         files_eval(files::create_directory("/mnt/home"), "create /mnt/home");
         mount(format!("{}2", device).as_str(), "/mnt/home", "subvol=@home");
         mount(format!("{}1", device).as_str(), "/mnt/boot/efi", "");
+        if swap {
+            exec_eval(
+                exec(
+                    "mkswap",
+                    vec!["-L".to_string(), "swap".to_string(), format!("{}3", device)],
+                ),
+                format!("make {}3 as swap partition", device).as_str(),
+            );
+            exec_eval(
+                exec(
+                    "swapon",
+                    vec![format!("{}3", device)],
+                ),
+                format!("activate {}3 swap device", device).as_str(),
+            );
+        }
     } else if !efi {
-        exec_eval(
+        // No need to create ext4 GRUB partition because MBR should automatically create it inside the boot sector
+        /*exec_eval(
             exec("mkfs.ext4", vec![format!("{}1", device)]),
             format!("format {}1 as ext4", device).as_str(),
-        );
+        );*/
         exec_eval(
-            exec("mkfs.btrfs", vec!["-f".to_string(), format!("{}2", device)]),
-            format!("format {}2 as btrfs", device).as_str(),
+            exec("mkfs.btrfs", vec!["-L".to_string(), "athenaos".to_string(), "-f".to_string(), format!("{}1", device)]),
+            format!("format {}1 as btrfs", device).as_str(),
         );
-        mount(format!("{}2", device).as_str(), "/mnt/", "");
+        mount(format!("{}1", device).as_str(), "/mnt/", "");
         exec_eval(
             exec_workdir(
                 "btrfs",
@@ -405,7 +539,7 @@ fn part_disk(device: &Path, efi: bool) {
             "create btrfs subvolume @home",
         );
         umount("/mnt");
-        mount(format!("{}2", device).as_str(), "/mnt/", "subvol=@");
+        mount(format!("{}1", device).as_str(), "/mnt/", "subvol=@");
         files_eval(
             files::create_directory("/mnt/boot"),
             "create directory /mnt/boot",
@@ -414,8 +548,25 @@ fn part_disk(device: &Path, efi: bool) {
             files::create_directory("/mnt/home"),
             "create directory /mnt/home",
         );
-        mount(format!("{}2", device).as_str(), "/mnt/home", "subvol=@home");
-        mount(format!("{}1", device).as_str(), "/mnt/boot", "");
+        mount(format!("{}1", device).as_str(), "/mnt/home", "subvol=@home");
+        // No need to create ext4 GRUB partition because MBR should automatically create it inside the boot sector
+        //mount(format!("{}1", device).as_str(), "/mnt/boot", "");
+        if swap {
+            exec_eval(
+                exec(
+                    "mkswap",
+                    vec!["-L".to_string(), "swap".to_string(), format!("{}2", device)],
+                ),
+                format!("make {}2 as swap partition", device).as_str(),
+            );
+            exec_eval(
+                exec(
+                    "swapon",
+                    vec![format!("{}2", device)],
+                ),
+                format!("activate {}2 swap device", device).as_str(),
+            );
+        }
     }
 }
 

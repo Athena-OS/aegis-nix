@@ -6,7 +6,6 @@ pub fn install(cores: String, jobs: String, keep: bool) {
 
     let mut install_args = vec![
         "--no-root-password",
-        "--no-bootloader",
         "--cores",
         &cores,
         "--max-jobs",

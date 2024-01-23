@@ -21,6 +21,8 @@ fn main() {
                 args.device,
                 args.mode,
                 args.efi,
+                args.swap,
+                args.swap_size,
                 &mut partitions,
             );
         }
@@ -28,8 +30,8 @@ fn main() {
             base::install_nix_config();
         }
         Command::Bootloader { subcommand } => match subcommand {
-            BootloaderSubcommand::GrubEfi { } => {
-                base::install_bootloader_efi();
+            BootloaderSubcommand::GrubEfi { efidir } => {
+                base::install_bootloader_efi(efidir);
             }
             BootloaderSubcommand::GrubLegacy { device } => {
                 base::install_bootloader_legacy(device);

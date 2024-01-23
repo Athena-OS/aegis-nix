@@ -16,18 +16,6 @@ pub struct Cli {
     pub verbose: u8,
 }
 
-#[derive(Debug, ValueEnum, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
-pub enum PackageManager {
-    #[value(name = "pacman")]
-    Pacman,
-
-    #[value(name = "pacstrap")]
-    Pacstrap,
-
-    #[value(name = "None/DIY")]
-    None,
-}
-
 #[derive(Debug, Subcommand)]
 pub enum Command {
     /// Partition the install destination
@@ -135,6 +123,14 @@ pub struct PartitionArgs {
     #[arg(long)]
     pub efi: bool,
 
+    /// If the install destination should have Swap partition
+    #[arg(long)]
+    pub swap: bool,
+
+    /// Swap partition size
+    #[arg(long)]
+    pub swap_size: String,
+
     /// The partitions to use for manual partitioning
     #[arg(required_if_eq("mode", "PartitionMode::Manual"), value_parser = parse_partitions)]
     pub partitions: Vec<Partition>,
@@ -185,7 +181,8 @@ pub enum BootloaderSubcommand {
     /// Install GRUB in EFI mode
     #[clap(name = "grub-efi")]
     GrubEfi {
-        
+        /// The directory to install the EFI bootloader to
+        efidir: PathBuf,
     },
 
     /// Install GRUB in legacy (BIOS) mode

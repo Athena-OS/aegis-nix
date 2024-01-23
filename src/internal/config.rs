@@ -33,6 +33,8 @@ struct Partition {
     device: String,
     mode: PartitionMode,
     efi: bool,
+    swap: bool,
+    swap_size: String,
     partitions: Vec<String>,
 }
 
@@ -97,6 +99,7 @@ pub fn read_config(configpath: PathBuf) {
     log::info!("Block device to use : {}", config.partition.device);
     log::info!("Partitioning mode : {:?}", config.partition.mode);
     log::info!("Partitioning for EFI : {}", config.partition.efi);
+    log::info!("Swap partition : {}", config.partition.swap);
     let mut partitions: Vec<args::Partition> = Vec::new();
     for partition in config.partition.partitions {
         partitions.push(args::Partition::new(
@@ -110,6 +113,8 @@ pub fn read_config(configpath: PathBuf) {
         device,
         config.partition.mode,
         config.partition.efi,
+        config.partition.swap,
+        config.partition.swap_size,
         &mut partitions,
     );
     println!();
