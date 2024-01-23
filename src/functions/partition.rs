@@ -347,10 +347,6 @@ fn part_nvme(device: &Path, efi: bool, swap: bool) {
         umount("/mnt");
         mount(format!("{}p2", device).as_str(), "/mnt/", "subvol=@");
         files_eval(files::create_directory("/mnt/boot"), "create /mnt/boot");
-        files_eval(
-            files::create_directory("/mnt/boot/efi"),
-            "create /mnt/boot/efi",
-        );
         files_eval(files::create_directory("/mnt/home"), "create /mnt/home");
         mount(
             format!("{}p2", device).as_str(),
@@ -484,13 +480,9 @@ fn part_disk(device: &Path, efi: bool, swap: bool) {
         umount("/mnt");
         mount(format!("{}2", device).as_str(), "/mnt/", "subvol=@");
         files_eval(files::create_directory("/mnt/boot"), "create /mnt/boot");
-        files_eval(
-            files::create_directory("/mnt/boot/efi"),
-            "create /mnt/boot/efi",
-        );
         files_eval(files::create_directory("/mnt/home"), "create /mnt/home");
         mount(format!("{}2", device).as_str(), "/mnt/home", "subvol=@home");
-        mount(format!("{}1", device).as_str(), "/mnt/boot/efi", "");
+        mount(format!("{}1", device).as_str(), "/mnt/boot", "");
         if swap {
             exec_eval(
                 exec(
