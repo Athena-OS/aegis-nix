@@ -55,6 +55,9 @@ fn main() {
                 users::root_pass(&password);
             }
         },
+        Command::InstallParams(args) => {
+            crate::internal::install::install(args.cores, args.jobs, args.keep);
+        }
         Command::Config { config } => {
             crate::internal::config::read_config(config);
         }

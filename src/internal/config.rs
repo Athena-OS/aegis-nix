@@ -14,6 +14,7 @@ struct Config {
     networking: Networking,
     users: Vec<Users>,
     rootpass: String,
+    params: InstallParams,
     desktop: String,
     theme: String,
     displaymanager: String,
@@ -59,6 +60,13 @@ struct Users {
     password: String,
     hasroot: bool,
     shell: String,
+}
+
+#[derive(Serialize, Deserialize)]
+struct InstallParams {
+    cores: String,
+    jobs: String,
+    keep: bool,
 }
 
 pub fn read_config(configpath: PathBuf) {
@@ -204,7 +212,7 @@ pub fn read_config(configpath: PathBuf) {
     users::root_pass(config.rootpass.as_str());
     println!();
     log::info!("Install Athena OS");
-    install::install();
+    install::install(config.params.cores, config.params.jobs, config.params.keep);
     println!();
     log::info!("Installation log file copied to /var/log/aegis.log");
     files_eval(files::create_directory("/mnt/var/log"), "create /mnt/var/log");

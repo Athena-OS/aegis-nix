@@ -1,16 +1,29 @@
 use std::io::{BufRead, BufReader};
 use std::process::{Command, Stdio};
 
-pub fn install() {
+pub fn install(cores: String, jobs: String, keep: bool) {
     // The init logging is called at the beginning of main.rs
+
+    let mut install_args = vec![
+        "--no-root-password",
+        "--no-bootloader",
+        "--cores",
+        &cores,
+        "--max-jobs",
+        &jobs,
+    ];
+
+    if keep {
+        install_args.push("--keep-going");
+    }
+
     let mut install_cmd = Command::new("nixos-install")
-        .args(&["--no-root-password"])
+        .args(&install_args)
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
         .spawn()
         .expect("Failed to start nixos-install");
 
-    
     let stdout_handle = install_cmd.stdout.take().expect("Failed to open stdout pipe");
     std::thread::spawn(move || {
         let reader = BufReader::new(stdout_handle);
@@ -21,7 +34,6 @@ pub fn install() {
         }
     });
 
-   
     let stderr_handle = install_cmd.stderr.take().expect("Failed to open stderr pipe");
     std::thread::spawn(move || {
         let reader = BufReader::new(stderr_handle);
