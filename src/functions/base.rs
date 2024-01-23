@@ -68,6 +68,12 @@ pub fn install_nix_config() {
 
 pub fn install_bootloader_efi() {
     log::info!("Set EFI Bootloader.");
+    let efidir = std::path::Path::new("/mnt").join(efidir);
+    let efi_str = efidir.to_str().unwrap();
+    log::info!("EFI bootloader installing at {}", efi_str);
+    if !std::path::Path::new(&format!("/mnt{efi_str}")).exists() {
+        crash(format!("The efidir {efidir:?} doesn't exist"), 1);
+    }
     files_eval(
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
