@@ -5,8 +5,8 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
     let mut _password = String::new();
     let config_path = "/mnt/etc/nixos/configuration.nix";
     
-    let user_line = format!("username = \"{}\";", username);
-    match files::replace_line_in_file(config_path, "username =", &user_line) {
+    let user_line = format!("  username = \"{}\";", username);
+    match files::replace_line_in_file(config_path, "username = \"", &user_line) {
         Ok(_) => {
             log::info!("Set username");
         }
@@ -23,8 +23,8 @@ pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
         _password = password.to_string();
     }
     
-    let hash_line = format!("hashed = \"{}\";", _password);
-    match files::replace_line_in_file(config_path, "hashed =", &hash_line) {
+    let hash_line = format!("  hashed = \"{}\";", _password);
+    match files::replace_line_in_file(config_path, "hashed = \"", &hash_line) {
         Ok(_) => {
             log::info!("Set user password hash");
         }
@@ -46,8 +46,8 @@ pub fn hash_pass(password: &str) -> std::process::Output {
 pub fn root_pass(root_pass: &str) {
     let config_path = "/mnt/etc/nixos/configuration.nix";
     
-    let hash_line = format!("hashedRoot = \"{}\";", root_pass);
-    match files::replace_line_in_file(config_path, "hashedRoot =", &hash_line) {
+    let hash_line = format!("  hashedRoot = \"{}\";", root_pass);
+    match files::replace_line_in_file(config_path, "hashedRoot = \"", &hash_line) {
         Ok(_) => {
             log::info!("Set root password hash");
         }
