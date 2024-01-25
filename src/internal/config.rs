@@ -23,7 +23,6 @@ struct Config {
     snapper: bool,
     flatpak: bool,
     zramd: bool,
-    hardened: bool,
     extra_packages: Vec<String>,
     kernel: String,
 }
