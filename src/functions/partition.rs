@@ -214,7 +214,7 @@ fn partition_no_efi(device: &Path, swap: bool, swap_size: String) {
                     String::from(&device),
                     String::from("--"),
                     String::from("mkpart"),
-                    String::from("swap"),
+                    String::from("primary"),
                     String::from("linux-swap"),
                     String::from(&boundary_partition_size),
                     String::from("100%"),
