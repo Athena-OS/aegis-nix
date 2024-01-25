@@ -59,6 +59,16 @@ pub fn fmt_mount(mountpoint: &str, filesystem: &str, blockdevice: &str) {
             exec("mkfs.f2fs", vec![String::from(blockdevice)]),
             format!("Formatting {blockdevice} as f2fs").as_str(),
         ),
+        "linux-swap" => {
+            exec_eval(
+                exec("mkswap", vec![String::from(blockdevice)]),
+                format!("Formatting {blockdevice} as linux-swap").as_str(),
+            );
+            exec_eval(
+                exec("swapon", vec![String::from(blockdevice)]),
+                format!("Activate {blockdevice} swap device").as_str(),
+            );
+        }
         "don't format" => {
             log::debug!("Not formatting {}", blockdevice);
         }
