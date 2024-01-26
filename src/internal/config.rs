@@ -221,10 +221,10 @@ pub fn read_config(configpath: PathBuf) {
     log::info!("Installation log file copied to /var/log/aegis.log");
     files_eval(files::create_directory("/mnt/var/log"), "create /mnt/var/log");
     files::copy_file("/tmp/aegis.log", "/mnt/var/log/aegis.log");
-    log::info!("Unmount drives")
+    log::info!("Unmount drives");
     if config.bootloader.r#type == "grub-efi" {
         partition::umount("/mnt/boot");
     }
     partition::umount("/mnt");
-    log::info!("Installation finished! You may reboot now!")
+    log::info!("Installation finished! You may reboot now!");
 }
