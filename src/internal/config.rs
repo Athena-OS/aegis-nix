@@ -224,6 +224,7 @@ pub fn read_config(configpath: PathBuf) {
     if config.bootloader.r#type == "grub-efi" {
         partition::umount("/mnt/boot");
     }
+    partition::umount("/mnt/home");
     partition::umount("/mnt");
     log::info!("Installation finished! You may reboot now!");
 }
