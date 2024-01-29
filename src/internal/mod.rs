@@ -1,6 +1,7 @@
 pub mod config;
 pub mod exec;
 pub mod files;
+pub mod hardware;
 pub mod install;
 pub mod returncode_eval;
 pub mod strings;

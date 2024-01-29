@@ -41,6 +41,14 @@ pub enum Command {
     #[command(name = "networking")]
     Networking(NetworkingArgs),
 
+    /// Set up zramd
+    #[command(name = "zramd")]
+    Zram,
+
+    /// Install Flatpak and enable FlatHub
+    #[command(name = "flatpak")]
+    Flatpak,
+
     /// Configure users and passwords
     #[command(name = "users")]
     Users {
@@ -209,6 +217,7 @@ pub struct LocaleArgs {
 pub struct NetworkingArgs {
     /// The hostname to assign to the system
     pub hostname: String,
+    pub ipv6: String,
 }
 
 #[derive(Debug, Subcommand)]

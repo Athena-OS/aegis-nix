@@ -44,6 +44,13 @@ fn main() {
         }
         Command::Networking(args) => {
             network::set_hostname(&args.hostname);
+            network::enable_ipv6();
+        }
+        Command::Zram => {
+            base::install_zram();
+        }
+        Command::Flatpak => {
+            base::install_flatpak();
         }
         Command::Users { subcommand } => match subcommand {
             UsersSubcommand::NewUser(args) => {

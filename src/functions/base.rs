@@ -64,6 +64,8 @@ pub fn install_nix_config() {
         ),
         "Set hardware-configuration path",
     );
+    hardware::cpu_check();
+    hardware::virt_check();
 }
 
 pub fn install_bootloader_efi(efidir: PathBuf) {
@@ -105,5 +107,27 @@ pub fn install_bootloader_legacy(device: PathBuf) {
             "grub",
         ),
         "Set Legacy bootloader",
+    );
+}
+
+pub fn install_zram() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/modules/hardware/default.nix",
+            "zramSwap.enable =.*",
+            "zramSwap.enable = true;",
+        ),
+        "enable zram",
+    );
+}
+
+pub fn install_flatpak() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "services.flatpak.enable =.*",
+            "services.flatpak.enable = true;",
+        ),
+        "enable flatpak",
     );
 }

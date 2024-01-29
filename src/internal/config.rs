@@ -20,7 +20,6 @@ struct Config {
     displaymanager: String,
     browser: String,
     terminal: String,
-    snapper: bool,
     flatpak: bool,
     zramd: bool,
     extra_packages: Vec<String>,
@@ -53,6 +52,7 @@ struct Locale {
 #[derive(Serialize, Deserialize)]
 struct Networking {
     hostname: String,
+    ipv6: bool,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -192,6 +192,23 @@ pub fn read_config(configpath: PathBuf) {
         },
         _ => log::info!("No terminal setup selected!"),
     }
+    // Misc Settings
+    println!();
+    log::info!("Enabling ipv6 : {}", config.networking.ipv6);
+    if config.networking.ipv6 {
+        network::enable_ipv6();
+    }
+    log::info!("Installing flatpak : {}", config.flatpak);
+    if config.flatpak {
+        base::install_flatpak();
+    }
+    println!();
+    println!("---------");
+    log::info!("Enabling zramd : {}", config.zramd);
+    if config.zramd {
+        base::install_zram();
+    }
+    // Users
     for i in 0..config.users.len() {
         log::info!("Creating user : {}", config.users[i].name);
         //log::info!("Setting use password : {}", config.users[i].password);
