@@ -270,6 +270,12 @@ pub enum DesktopSetup {
     #[value(name = "gnome")]
     Gnome,
 
+    #[value(name = "cinnamon")]
+    Cinnamon,
+
+    #[value(name = "mate")]
+    Mate,
+
     #[value(name = "xfce-refined")]
     XfceRefined,
 
@@ -282,8 +288,20 @@ pub enum DesktopSetup {
 
 #[derive(Debug, ValueEnum, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ThemeSetup {
+    #[value(name = "akame")]
+    Akame,
+
+    #[value(name = "cyborg")]
+    Cyborg,
+    
     #[value(name = "graphite")]
     Graphite,
+
+    #[value(name = "hackthebox")]
+    HackTheBox,
+
+    #[value(name = "samurai")]
+    Samurai,
 
     #[value(name = "sweet")]
     Sweet,

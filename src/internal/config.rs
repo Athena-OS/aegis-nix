@@ -144,6 +144,8 @@ pub fn read_config(configpath: PathBuf) {
         "gnome" => { //Note that the value on this match statement must fit the name in desktops.py of aegis-gui (then they are lowercase transformed)
             desktops::install_desktop_setup(DesktopSetup::Gnome);
         },
+        "cinnamon" => desktops::install_desktop_setup(DesktopSetup::Cinnamon),
+        "mate" => desktops::install_desktop_setup(DesktopSetup::Mate),
         "xfce refined" => desktops::install_desktop_setup(DesktopSetup::XfceRefined),
         "xfce picom" => desktops::install_desktop_setup(DesktopSetup::XfcePicom),
         "none/diy" => desktops::install_desktop_setup(DesktopSetup::None),

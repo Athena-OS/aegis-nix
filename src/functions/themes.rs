@@ -4,44 +4,68 @@ use crate::internal::*;
 pub fn install_theme_setup(theme_setup: ThemeSetup) {
     log::debug!("Installing {:?}", theme_setup);
     match theme_setup {
+        ThemeSetup::Akame => install_akame(),
+        ThemeSetup::Cyborg => install_cyborg(),
         ThemeSetup::Graphite => install_graphite(),
+        ThemeSetup::HackTheBox => install_hackthebox(),
+        ThemeSetup::Samurai => install_samurai(),
         ThemeSetup::Sweet => install_sweet(),
         ThemeSetup::None => log::debug!("No theme setup selected"),
     }
+}
+
+fn install_akame() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "theme =.*",
+            "theme = \"akame\";",
+        ),
+        "Set Akame theme",
+    );
+}
+
+fn install_cyborg() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "theme =.*",
+            "theme = \"cyborg\";",
+        ),
+        "Set Cyborg theme",
+    );
 }
 
 fn install_graphite() {
     files_eval(
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
-            "module-name =.*",
-            "module-name = \"graphite\";",
+            "theme =.*",
+            "theme = \"graphite\";",
         ),
-        "Set Graphite Module",
+        "Set Graphite theme",
     );
+}
+
+fn install_hackthebox() {
     files_eval(
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
-            "gtk-theme =.*",
-            "gtk-theme = \"Graphite-Dark\";",
+            "theme =.*",
+            "theme = \"hackthebox\";",
         ),
-        "Set Graphite GTK",
+        "Set Hack The Box theme",
     );
+}
+
+fn install_samurai() {
     files_eval(
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
-            "icon-theme =.*",
-            "icon-theme = \"Tela-circle-black-dark\";",
+            "theme =.*",
+            "theme = \"samurai\";",
         ),
-        "Set Graphite Icon Theme",
-    );
-    files_eval(
-        files::sed_file(
-            "/mnt/etc/nixos/configuration.nix",
-            "cursor-theme =.*",
-            "cursor-theme = \"Bibata-Modern-Ice\";",
-        ),
-        "Set Graphite Cursor Theme",
+        "Set Samurai theme",
     );
 }
 
@@ -49,33 +73,9 @@ fn install_sweet() {
     files_eval(
         files::sed_file(
             "/mnt/etc/nixos/configuration.nix",
-            "module-name =.*",
-            "module-name = \"sweet\";",
+            "theme =.*",
+            "theme = \"sweet\";",
         ),
-        "Set Sweet Module",
-    );
-    files_eval(
-        files::sed_file(
-            "/mnt/etc/nixos/configuration.nix",
-            "gtk-theme =.*",
-            "gtk-theme = \"Sweet-Dark-v40\";",
-        ),
-        "Set Sweet GTK",
-    );
-    files_eval(
-        files::sed_file(
-            "/mnt/etc/nixos/configuration.nix",
-            "icon-theme =.*",
-            "icon-theme = \"Tela-circle-black-dark\";",
-        ),
-        "Set Sweet Icon Theme",
-    );
-    files_eval(
-        files::sed_file(
-            "/mnt/etc/nixos/configuration.nix",
-            "cursor-theme =.*",
-            "cursor-theme = \"Bibata-Modern-Ice\";",
-        ),
-        "Set Sweet Cursor Theme",
+        "Set Sweet theme",
     );
 }

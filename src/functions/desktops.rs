@@ -5,6 +5,8 @@ pub fn install_desktop_setup(desktop_setup: DesktopSetup) {
     log::debug!("Installing {:?}", desktop_setup);
     match desktop_setup {
         DesktopSetup::Gnome => install_gnome(),
+        DesktopSetup::Cinnamon => install_cinnamon(),
+        DesktopSetup::Mate => install_mate(),
         DesktopSetup::XfceRefined => install_xfce_refined(),
         DesktopSetup::XfcePicom => install_xfce_picom(),
         DesktopSetup::None => log::debug!("No desktop setup selected"),
@@ -57,5 +59,27 @@ fn install_gnome() {
             "desktop = \"gnome\";",
         ),
         "Set GNOME",
+    );
+}
+
+fn install_cinnamon() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "desktop =.*",
+            "desktop = \"cinnamon\";",
+        ),
+        "Set Cinnamon",
+    );
+}
+
+fn install_mate() {
+    files_eval(
+        files::sed_file(
+            "/mnt/etc/nixos/configuration.nix",
+            "desktop =.*",
+            "desktop = \"mate\";",
+        ),
+        "Set MATE",
     );
 }
