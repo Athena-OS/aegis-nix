@@ -74,7 +74,7 @@ pub fn cpu_check() {
             files::sed_file(
                 "/mnt/etc/nixos/modules/hardware/default.nix",
                 "cpu.intel.updateMicrocode =.*",
-                "cpu.intel.updateMicrocode = true;",
+                "cpu.amd.updateMicrocode = true;",
             ),
             "enable amd ucode",
         );
