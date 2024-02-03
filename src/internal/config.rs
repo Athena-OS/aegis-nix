@@ -4,6 +4,8 @@ use crate::functions::*;
 use crate::internal::*;
 use serde::{Deserialize, Serialize};
 use std::path::{PathBuf};
+use std::io;
+use std::process::{Command, Stdio};
 
 
 #[derive(Serialize, Deserialize)]
@@ -239,7 +241,7 @@ pub fn read_config(configpath: PathBuf) {
     users::root_pass(config.rootpass.as_str());
     println!();
     log::info!("Install Athena OS");
-    install::install(config.params.cores, config.params.jobs, config.params.keep);
+    let exit_code = install::install(config.params.cores, config.params.jobs, config.params.keep);
     println!();
     log::info!("Installation log file copied to /var/log/aegis.log");
     files_eval(files::create_directory("/mnt/var/log"), "create /mnt/var/log");
@@ -249,5 +251,51 @@ pub fn read_config(configpath: PathBuf) {
     }
     partition::umount("/mnt/home");
     partition::umount("/mnt");
-    log::info!("Installation finished! You may reboot now!");
+    if exit_code == 0 {
+        log::info!("Installation finished! You may reboot now!");
+    }
+    else {
+        log::error!("Installation failed. Exit code: {}", exit_code);
+        if prompt_user_for_logs() {
+            run_logs_command();
+        }
+    }
+}
+
+// Prompt the user to generate logs and return true if the answer is 'Y'
+fn prompt_user_for_logs() -> bool {
+    println!("Do you want to generate logs of the failed installation to share to Athena OS Team? (Y/N)");
+
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).expect("Failed to read user input.");
+
+    // Trim input, convert to lowercase, and check if it equals 'y'
+    input.trim().to_lowercase() == "y"
+}
+
+// Run the command to send logs to termbin.com
+fn run_logs_command() {
+    // Create a new command to run the specified shell command
+    let mut logs_command = Command::new("sh")
+        .args(&["-c", "cat /tmp/aegis.log | nc termbin.com 9999"])
+        .stdout(Stdio::piped())  // Redirect standard output to a pipe
+        .stderr(Stdio::piped())  // Redirect standard error to a pipe
+        .spawn()  // Start the command as a new process
+        .expect("Failed to start logs command.");  // Handle any errors during command startup
+
+    // Wait for the logs command to complete and log its exit status
+    let logs_status = logs_command.wait();
+    match logs_status {
+        Ok(exit_status) => match exit_status.code() {
+            Some(code) => {
+                if code == 0 {
+                    log::info!("Log URL generation completed.");
+                } else {
+                    log::error!("Error on generating log URL. Exit code: {}", code);
+                }
+            }
+            None => log::info!("Logs command terminated without an exit code."),
+        },
+        Err(err) => log::error!("Failed to wait for logs command: {}", err),
+    }
 }
