@@ -4,7 +4,7 @@ use crate::functions::*;
 use crate::internal::*;
 use serde::{Deserialize, Serialize};
 use std::path::{PathBuf};
-use std::io;
+use std::io::{self, BufRead, BufReader};
 use std::process::{Command, Stdio};
 
 
@@ -283,6 +283,26 @@ fn run_logs_command() {
         .spawn()  // Start the command as a new process
         .expect("Failed to start logs command.");  // Handle any errors during command startup
 
+    let stdout_handle = logs_command.stdout.take().expect("Failed to open stdout pipe.");
+    let stdout_thread = std::thread::spawn(move || {
+        let reader = BufReader::new(stdout_handle);
+        for line in reader.lines() {
+            if let Ok(line) = line {            
+                log::info!("{}", line);
+            }
+        }
+    });
+
+    let stderr_handle = logs_command.stderr.take().expect("Failed to open stderr pipe.");
+    let stderr_thread = std::thread::spawn(move || {
+        let reader = BufReader::new(stderr_handle);
+        for line in reader.lines() {
+            if let Ok(line) = line {
+                log::error!("{}", line);
+            }
+        }
+    });
+
     // Wait for the logs command to complete and log its exit status
     let logs_status = logs_command.wait();
     match logs_status {
@@ -298,4 +318,8 @@ fn run_logs_command() {
         },
         Err(err) => log::error!("Failed to wait for logs command: {}", err),
     }
+
+    // Wait for the threads capturing output to finish before returning
+    stdout_thread.join().expect("Failed to join stdout thread.");
+    stderr_thread.join().expect("Failed to join stderr thread.");
 }
