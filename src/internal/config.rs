@@ -264,7 +264,7 @@ pub fn read_config(configpath: PathBuf) {
 
 // Prompt the user to generate logs and return true if the answer is 'Y'
 fn prompt_user_for_logs() -> bool {
-    println!("Do you want to generate logs of the failed installation to share to Athena OS Team? (Y/N)");
+    println!("\nDo you want to generate logs of the failed installation to share to Athena OS Team? (Y/N)");
 
     let mut input = String::new();
     io::stdin().read_line(&mut input).expect("Failed to read user input.");
