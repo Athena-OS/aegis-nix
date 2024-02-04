@@ -264,13 +264,16 @@ pub fn read_config(configpath: PathBuf) {
 
 // Prompt the user to generate logs and return true if the answer is 'Y'
 fn prompt_user_for_logs() -> bool {
-    println!("\nDo you want to generate logs of the failed installation to share to Athena OS Team? (Y/N)");
+    println!("\nDo you want to generate logs of the failed install to communicate to the team? (Y/n)");
 
     let mut input = String::new();
-    io::stdin().read_line(&mut input).expect("Failed to read user input.");
+    io::stdin().read_line(&mut input).expect("Failed to read user input");
 
-    // Trim input, convert to lowercase, and check if it equals 'y'
-    input.trim().to_lowercase() == "y"
+    // If the input is empty, set the default choice to 'Y'
+    let choice = if input.trim().is_empty() { "Y".to_lowercase() } else { input.trim().to_lowercase() };
+
+    // Check if the choice is 'y'
+    choice == "y"
 }
 
 // Run the command to send logs to termbin.com
