@@ -257,6 +257,7 @@ pub fn read_config(configpath: PathBuf) {
     else {
         log::error!("Installation failed. Exit code: {}", exit_code);
         if prompt_user_for_logs() {
+            log::info!("Generating log URL...");
             run_logs_command();
         }
     }
