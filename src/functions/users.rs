@@ -4,8 +4,10 @@ use std::process::Command;
 pub fn new_user(username: &str, password: &str, do_hash_pass: bool) {
     let mut _password = String::new();
     let config_path = "/mnt/etc/nixos/configuration.nix";
+    // Username cannot contain any space
+    let sanitized_username = username.replace(" ", "");
     
-    let user_line = format!("  username = \"{}\";", username);
+    let user_line = format!("  username = \"{}\";", sanitized_username);
     match files::replace_line_in_file(config_path, "username = \"", &user_line) {
         Ok(_) => {
             log::info!("Set username");
