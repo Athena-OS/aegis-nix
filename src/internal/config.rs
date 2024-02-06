@@ -47,7 +47,8 @@ struct Bootloader {
 #[derive(Serialize, Deserialize)]
 struct Locale {
     locale: Vec<String>,
-    keymap: String,
+    virtkeymap: String,
+    x11keymap: String,
     timezone: String,
 }
 
@@ -132,8 +133,9 @@ pub fn read_config(configpath: PathBuf) {
     // Set locales at the beginning to prevent some warning messages about "Setting locale failed"
     log::info!("Adding Locales : {:?}", config.locale.locale);
     locale::set_locale(config.locale.locale.join(" "));
-    log::info!("Using keymap : {}", config.locale.keymap);
-    locale::set_keyboard(config.locale.keymap.as_str());
+    log::info!("Using console keymap : {}", config.locale.virtkeymap);
+    log::info!("Using x11 keymap : {}", config.locale.x11keymap);
+    locale::set_keyboard(config.locale.virtkeymap.as_str(), config.locale.x11keymap.as_str());
     log::info!("Setting timezone : {}", config.locale.timezone);
     locale::set_timezone(config.locale.timezone.as_str());
     println!();

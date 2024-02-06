@@ -204,7 +204,8 @@ pub enum BootloaderSubcommand {
 #[derive(Debug, Args)]
 pub struct LocaleArgs {
     /// The keyboard layout to use
-    pub keyboard: String,
+    pub virtkeyboard: String,
+    pub x11keyboard: String,
 
     /// The timezone to use
     pub timezone: String,
